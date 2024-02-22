@@ -1,0 +1,31 @@
+{
+  "items": [
+      {
+          "title": "San Salvador de Jujuy, Jujuy, Argentina",
+          "id": "here:cm:namedplace:24230341",
+          "resultType": "locality",
+          "localityType": "city",
+          "address": {
+              "label": "San Salvador de Jujuy, Jujuy, Argentina",
+              "countryCode": "ARG",
+              "countryName": "Argentina",
+              "stateCode": "JY",
+              "state": "Jujuy",
+              "county": "Dr Manuel Belgrano",
+              "city": "San Salvador de Jujuy",
+              "postalCode": "Y4600"
+          },
+          "position": {
+              "lat": -24.18813,
+              "lng": -65.29604
+          },
+          "distance": 0,
+          "mapView": {
+              "west": -65.33815,
+              "south": -24.21968,
+              "east": -65.25347,
+              "north": -24.16004
+          }
+      }
+  ]
+}

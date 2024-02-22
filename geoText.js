@@ -1,93 +1,47 @@
-var $respuesta= $("#respuesta"); // output para feedback
-var $text= $('#busqueda'); // input 
+const placesDiv = document.getElementById("places");
+const imageDiv = document.getElementById("place-img");
+const getPosition = () => {
+	// Verificamos si el navegador soporta la geolocalización
+	if ("geolocation" in navigator) {
+		// Obtener la ubicación del usuario
+		navigator.geolocation.getCurrentPosition(async (position) => {
+			// Acceder a la latitud y longitud desde el objeto position.coords
+			const latitude = position.coords.latitude;
+			const longitude = position.coords.longitude;
+			const response = await reverseGeocoding(latitude, longitude);
+      drawList(response);
+			drawImage(latitude, longitude)
+		});
+	} else {
+		// El navegador no soporta geolocalización
+		console.log("Geolocalización no está soportada en este navegador.");
+    drawList(null);
+	}
+};
 
-var app_id=''; // app_id del API HERE
-var app_code=''; // app_code del API HERE
-
-// Solicita permisos de ubicación
-function traerUbicacion(){
-    var posicion;
-    if (navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(actualizarPosicion);
-    }
-    else{
-        $respuesta.text("no tenemos acceso a tu ubicación");
-    }
+const drawImage = (lat, lng) =>{
+	const imageSrc = createURLImage(lat,lng);
+	imageDiv.innerHTML = `<img src="${imageSrc}">`
 }
 
-// En base a lat,long obtener el nombre de la ciudad
-function actualizarPosicion(posicion){
-
-    /* Prueba: Mostrar lat y long
-        $respuesta.text(`latitud:  ${posicion.coords.latitude} longitud: ${posicion.coords.longitude}`);
-    */ 
-    var api_dir='https://reverse.geocoder.api.here.com/6.2/reversegeocode.json';   
-
-    $.ajax({
-    url: api_dir,
-    type: 'GET',
-    dataType: 'jsonp',
-    jsonp: 'jsoncallback',
-    data:{
-        prox: `${posicion.coords.latitude},${posicion.coords.longitude},10`,
-        mode: 'retrieveAddresses',
-        maxresults: '1',
-        app_id: app_id,
-        app_code: app_code
-    },
-    success: function(response) {
-        //console.log(response.Response.View[0].Result[0].Location.Address.City);
-        $('#busqueda').val(response.Response.View[0].Result[0].Location.Address.Label);
-        $respuesta.text("Tu lugar fue encontrado correctamente");
-        },
-    error:function(e){
-        $respuesta.text("no se obtuvo posición");
-    }
-    });   
+const drawList = (posiblePositions)=>{
+  if (posiblePositions){
+    const listPositions = posiblePositions.map((position)=> `<li>${position}</li>`).join("")
+    placesDiv.innerHTML = `<ul>${listPositions}</ul>`;
+  }else{
+    placesDiv.innerHTML = '<p>Lugar no encontrado</p>';
+  }
 }
 
-// en caso de cambiar texto
-$text.on('input',function(e){
-    texto_ingresado=$text[0].value;
-    cambiarTexto(texto_ingresado);
-});
+const completePlace = async (text) => {
+	const response = await autocomplete(text);
+	drawList(response)
+};
 
-// agregar sugerencias al texto
-function cambiarTexto(query){
-
-    var api_dir='https://autocomplete.geocoder.api.here.com/6.2/suggest.json';   
-
-    $.ajax({
-        url: api_dir,
-        type: 'GET',
-        dataType: 'jsonp',
-        jsonp: 'jsoncallback',
-        data:{
-            app_id: app_id,
-            app_code: app_code,
-            query:query,
-            language:'es',
-            matchLevel: 'city',
-        },
-        success: function(response) {
-            $("#list").empty();
-            if (response.suggestions != null) {
-                for(sug of response.suggestions){
-                    if (sug.matchLevel=='city'){
-                        $option= `<option> ${sug.label}</option>`;
-                        $("#list").append($($option));
-
-                        /* Prueba: Separar ciudad de país.
-                            console.log(sug.label.split(",")[3]);
-                        */
-                    }
-                }
-            }
-        },
-        
-    });
-
+const getSuggestions = (value)=>{
+  if (value.length > 3){
+    completePlace(value);
+  }else{
+    placesDiv.innerHTML = "";
+  }
 }
-
-
-
