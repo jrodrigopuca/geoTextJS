@@ -1,1 +1,15 @@
-./data.js
+# dependencies
+node_modules
+
+# distribution
+.parcel-cache
+dist
+
+# misc
+.DS_Store
+.env.local
+.env.development
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
